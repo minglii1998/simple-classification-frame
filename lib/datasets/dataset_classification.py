@@ -21,23 +21,43 @@ from torch.utils import data
 from torch.utils.data import sampler
 from torchvision import transforms
 
-
 from lib.utils import fileutils
+
+from imgaug import augmenters as iaa
+import imageio
+
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 class Dataset(data.Dataset):
-  def __init__(self, root='/home/liming/ShareWindows/Free_zome/Self-labeled_data/obj_label/crop', num_samples=10000, transform=None):
+  def __init__(self, root='/home/liming/ShareWindows/Free_zome/Self-labeled_data/obj_label/crop', num_samples=10000, height=128, width=128, is_train=False, transform=None):
     super(Dataset, self).__init__()
 
     self.transform = transform
+    self.is_train = is_train
+    self.width = width
+    self.height = height
 
     imgs, _, _ = fileutils.get_files(root)
     self.img_list = imgs
 
     self.nSamples = int(len(self.img_list))
     self.nSamples = min(self.nSamples, num_samples)
+
+    if self.is_train:
+      self.augment = iaa.Sequential([
+        iaa.MotionBlur(k=random.randint(2,15), angle=random.uniform(-90,90)),
+        iaa.CropAndPad(percent=(-0.2, 0.2), pad_mode="edge"),
+        iaa.AdditiveGaussianNoise(scale=(0, 0.2*255)),
+        iaa.SaltAndPepper(0.2,per_channel=True), 
+        iaa.AddToHueAndSaturation((-60, 60)),
+        iaa.MultiplyBrightness((0.2, 2)),
+        iaa.Affine(rotate=(-180, 180)),
+        iaa.pillike.EnhanceSharpness(),
+        iaa.pillike.EnhanceColor(),
+        iaa.Dropout(p=(0, 0.2))
+        ], random_order=True)
 
   def __len__(self):
     return self.nSamples
@@ -50,6 +70,12 @@ class Dataset(data.Dataset):
     except IOError:
       print('Corrupted image for %d' % index)
       return self[index]
+    
+    img = img.resize((self.width,self.height))
+    if self.is_train:
+      img = np.asarray(img, dtype=np.uint8)
+      img = self.augment(image = img)
+      img = Image.fromarray(img)
 
     # Sample: 1116_hly_3_0_2.5.jpg // 1116_hly_23_0_5.jpg
     raw_label = self.img_list[index].split('_')[-1] # 2.5.jpg // 5.jpg

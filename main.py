@@ -33,10 +33,10 @@ def get_data(data_dir, num_samples, height, width, batch_size, workers, is_train
   if isinstance(data_dir, list):
     dataset_list = []
     for data_dir_ in data_dir:
-      dataset_list.append(Dataset(data_dir_, num_samples))
+      dataset_list.append(Dataset(data_dir_, num_samples,height,width,is_train=is_train))
     dataset = ConcatDataset(dataset_list)
   else:
-    dataset = Dataset(data_dir, num_samples)
+    dataset = Dataset(data_dir, num_samples,height,width)
   print('total image: ', len(dataset))
 
   if is_train:
@@ -88,7 +88,7 @@ def main(args):
     get_data(args.test_data_dir, args.num_test, args.height, args.width, args.batch_size, args.workers, False)
 
   # Create model
-  model = resnet.resnet34(num_classes=9)
+  model = resnet.resnet18(num_classes=9)
   criterion = nn.CrossEntropyLoss()
 
   # Load from checkpoint
@@ -123,7 +123,7 @@ def main(args):
     model = nn.DataParallel(model)
 
   # Evaluator
-  evaluator = Evaluator(model, args.evaluation_metric, criterion, args.cuda)
+  evaluator = Evaluator(model, args.evaluation_metric, args.logs_dir, criterion, args.cuda)
 
   if args.evaluate:
     print('Test on {0}:'.format(args.test_data_dir))

@@ -3,6 +3,7 @@ import time
 from time import gmtime, strftime
 from datetime import datetime
 from collections import OrderedDict
+import os.path as osp
 
 import torch
 
@@ -22,10 +23,11 @@ metrics_factory = evaluation_metrics.factory()
 # global_args = get_args(sys.argv[1:])
 
 class BaseEvaluator(object):
-  def __init__(self, model, metric, criterion, use_cuda=True):
+  def __init__(self, model, metric, logs_dir, criterion, use_cuda=True):
     super(BaseEvaluator, self).__init__()
     self.model = model
     self.metric = metric
+    self.logs_txt_dir = osp.join(logs_dir, 'log.txt')
     self.criterion = criterion 
     self.use_cuda = use_cuda
     self.device = torch.device("cuda" if use_cuda else "cpu")
@@ -74,6 +76,18 @@ class BaseEvaluator(object):
                       i + 1, len(data_loader),
                       batch_time.val, batch_time.avg,
                       data_time.val, data_time.avg))
+        
+        with open(self.logs_txt_dir,'a') as f:
+          f.write('[{}]\t'
+              'Evaluation: [{}/{}]\t'
+              'Time {:.3f} ({:.3f})\t'
+              'Data {:.3f} ({:.3f})\t'
+              # .format(strftime("%Y-%m-%d %H:%M:%S", gmtime()),
+              .format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                      i + 1, len(data_loader),
+                      batch_time.val, batch_time.avg,
+                      data_time.val, data_time.avg))
+          f.write('\n')
 
 
     # Images from different batches
@@ -82,6 +96,9 @@ class BaseEvaluator(object):
     Loss_mean = loss_all/num_samples
 
     print('{0}: {1:.3f} \t Mean Loss: {2:.3f} '.format(self.metric, Acc.data, Loss_mean.data))
+    with open(self.logs_txt_dir,'a') as f:
+      f.write('{0}: {1:.3f} \t Mean Loss: {2:.3f} '.format(self.metric, Acc.data, Loss_mean.data))
+      f.write('\n \n')
 
 
     #====== Visualization ======#
