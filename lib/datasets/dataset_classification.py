@@ -47,16 +47,16 @@ class Dataset(data.Dataset):
 
     if self.is_train:
       self.augment = iaa.Sequential([
-        iaa.MotionBlur(k=random.randint(2,15), angle=random.uniform(-90,90)),
+        iaa.MotionBlur(k=5, angle=45),
         iaa.CropAndPad(percent=(-0.2, 0.2), pad_mode="edge"),
-        iaa.AdditiveGaussianNoise(scale=(0, 0.2*255)),
-        iaa.SaltAndPepper(0.2,per_channel=True), 
-        iaa.AddToHueAndSaturation((-60, 60)),
-        iaa.MultiplyBrightness((0.2, 2)),
+        iaa.AdditiveGaussianNoise(scale=(0, 0.05*255)),
+        # iaa.SaltAndPepper(0.2,per_channel=True), 
+        # iaa.AddToHueAndSaturation((-60, 60)),
+        iaa.MultiplyBrightness((0.5, 1.5)),
         iaa.Affine(rotate=(-180, 180)),
         iaa.pillike.EnhanceSharpness(),
-        iaa.pillike.EnhanceColor(),
-        iaa.Dropout(p=(0, 0.2))
+        # iaa.pillike.EnhanceColor(),
+        iaa.Dropout(p=(0, 0.1))
         ], random_order=True)
 
   def __len__(self):
@@ -73,9 +73,12 @@ class Dataset(data.Dataset):
     
     img = img.resize((self.width,self.height))
     if self.is_train:
-      img = np.asarray(img, dtype=np.uint8)
-      img = self.augment(image = img)
-      img = Image.fromarray(img)
+      if random.uniform(0,1) < 0.2:
+        pass
+      else:
+        img = np.asarray(img, dtype=np.uint8)
+        img = self.augment(image = img)
+        img = Image.fromarray(img)
 
     # Sample: 1116_hly_3_0_2.5.jpg // 1116_hly_23_0_5.jpg
     raw_label = self.img_list[index].split('_')[-1] # 2.5.jpg // 5.jpg

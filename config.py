@@ -32,8 +32,11 @@ parser.add_argument('--image_path', type=str, default='',
                     help='the path of single image, used in demo.py.')
 
 # model
+parser.add_argument('--model_arch', type=str, default='resnet34',
+                    help='the model to use.')
 parser.add_argument('--dropout', type=float, default=0.5)
 parser.add_argument('--n_group', type=int, default=1)
+parser.add_argument('--num_class', type=int, default=9)
 
 # optimizer
 parser.add_argument('--lr', type=float, default=1,

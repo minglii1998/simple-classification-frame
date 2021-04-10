@@ -15,10 +15,11 @@ import torch
 from torch import nn, optim
 from torch.backends import cudnn
 from torch.utils.data import DataLoader, SubsetRandomSampler
+import torchvision
 
 from config import get_args
 from lib import datasets, evaluation_metrics, models
-from lib.models import resnet 
+from lib.models import resnet, mobilnet_v3
 from lib.datasets.dataset_classification import Dataset, AlignCollate
 from lib.datasets.concatdataset_classification import ConcatDataset
 from lib.trainers import Trainer
@@ -88,7 +89,22 @@ def main(args):
     get_data(args.test_data_dir, args.num_test, args.height, args.width, args.batch_size, args.workers, False)
 
   # Create model
-  model = resnet.resnet18(num_classes=9)
+  if args.model_arch == 'resnet34':
+    model = resnet.resnet34(num_classes=args.num_class)
+    print('########## Using resnet34')
+
+  elif args.model_arch == 'resnet18':
+    model = resnet.resnet18(num_classes=args.num_class)
+    print('########## Using resnet18')
+
+  elif args.model_arch == 'mobilenet_v2':
+    model = torchvision.models.mobilenet_v2(num_classes=args.num_class)
+    print('########## Using mobilenet_v2')
+
+  else:
+    print('Wrong Model!')
+    return
+
   criterion = nn.CrossEntropyLoss()
 
   # Load from checkpoint
