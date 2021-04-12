@@ -19,7 +19,7 @@ import torchvision
 
 from config import get_args
 from lib import datasets, evaluation_metrics, models
-from lib.models import resnet, mobilnet_v3
+from lib.models import resnet
 from lib.datasets.dataset_classification import Dataset, AlignCollate
 from lib.datasets.concatdataset_classification import ConcatDataset
 from lib.trainers import Trainer

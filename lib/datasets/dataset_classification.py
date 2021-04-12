@@ -154,34 +154,5 @@ class AlignCollate(object):
     return b_images, b_labels
 
 
-def test():
-  # lmdb_path = "/share/zhui/reg_dataset/NIPS2014"
-  lmdb_path = "/share/zhui/reg_dataset/IIIT5K_3000"
-  train_dataset = LmdbDataset(root=lmdb_path, voc_type='ALLCASES_SYMBOLS', max_len=50)
-  batch_size = 1
-  train_dataloader = data.DataLoader(
-        train_dataset,
-        batch_size=batch_size,
-        shuffle=False,
-        num_workers=4,
-        collate_fn=AlignCollate(imgH=64, imgW=256, keep_ratio=False))
-
-  for i, (images, labels, label_lens) in enumerate(train_dataloader):
-    # visualization of input image
-    # toPILImage = transforms.ToPILImage()
-    images = images.permute(0,2,3,1)
-    images = to_numpy(images)
-    images = images * 0.5 + 0.5
-    images = images * 255
-    for id, (image, label, label_len) in enumerate(zip(images, labels, label_lens)):
-      image = Image.fromarray(np.uint8(image))
-      # image = toPILImage(image)
-      image.show()
-      print(image.size)
-      print(labels2strs(label, train_dataset.id2char, train_dataset.char2id))
-      print(label_len.item())
-      input()
-
-
 if __name__ == "__main__":
     test()

@@ -15,7 +15,7 @@ import sys
 from . import evaluation_metrics
 from .evaluation_metrics import Accuracy
 from .utils.meters import AverageMeter
-from .utils.visualization_utils import recognition_vis, stn_vis
+from .utils.visulization import visulize
 
 metrics_factory = evaluation_metrics.factory()
 
@@ -101,12 +101,10 @@ class BaseEvaluator(object):
       f.write('\n \n')
 
 
-    #====== Visualization ======#
-    # if vis_dir is not None:
-    #   # recognition_vis(images, outputs['pred_rec'], targets, score_list, dataset, vis_dir)
-    #   stn_vis(images, outputs['rectified_images'], outputs['ctrl_points'], outputs['pred_rec'],
-    #           targets, score_list, outputs['pred_score'] if 'pred_score' in outputs else None, dataset, vis_dir)
-    
+    # ====== Visualization ======#
+    if vis_dir is not None:
+      visulize(images_all,targets_all,preds_all,vis_dir)
+
     return Acc
 
 

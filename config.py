@@ -60,6 +60,8 @@ parser.add_argument('--print_freq', type=int, default=10)
 parser.add_argument('--test_freq', type=int, default=50)
 parser.add_argument('--cuda', default=True, type=bool,
                     help='whether use cuda support.')
+parser.add_argument('--vis_dir', type=str, metavar='PATH',
+                    default='/share/zhui/reg_dataset/IIIT5K_3000')
 
 # testing configs
 parser.add_argument('--evaluation_metric', type=str, default='accuracy')
