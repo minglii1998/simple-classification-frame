@@ -105,7 +105,9 @@ def main(args):
     print('Wrong Model!')
     return
 
-  criterion = nn.CrossEntropyLoss()
+  # criterion = nn.CrossEntropyLoss()
+  criterion = nn.MSELoss()
+
 
   # Load from checkpoint
   if args.evaluation_metric == 'accuracy':

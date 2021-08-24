@@ -50,10 +50,11 @@ class BaseTrainer(object):
     for i, datas in enumerate(data_loader):
       self.model.train()
       self.iters += 1
-      images, labels = datas
+      images, labels_x, labels_y = datas
+      labels = torch.cat((labels_x.unsqueeze(1),labels_y.unsqueeze(1)),1)
 
       images = images.to(self.device)
-      labels = labels.to(self.device)
+      labels = labels.to(self.device).float()
 
       data_time.update(time.time() - end)
 

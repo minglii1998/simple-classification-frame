@@ -4,6 +4,7 @@ from __future__ import absolute_import
 # sys.path.append('./')
 
 import os
+import os.path as osp
 # import moxing as mox
 
 import pickle
@@ -31,7 +32,8 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 class Dataset(data.Dataset):
-  def __init__(self, root='/home/liming/ShareWindows/Free_zome/Self-labeled_data/obj_label/crop', num_samples=10000, height=128, width=128, is_train=False, transform=None):
+  def __init__(self, root='/home/liming/chenhan/project/pipe/result/DL-based-findcenter/data_txt',
+                   num_samples=500, height=1280, width=1960, is_train=False, transform=None):
     super(Dataset, self).__init__()
 
     self.transform = transform
@@ -39,10 +41,14 @@ class Dataset(data.Dataset):
     self.width = width
     self.height = height
 
-    imgs, _, _ = fileutils.get_files(root)
-    self.img_list = imgs
+    self.data_root = root
 
-    self.nSamples = int(len(self.img_list))
+    num_txt_p = osp.join(root,'num.txt')
+    with open(num_txt_p,'r') as f:
+      num = f.readline()
+    num = num.strip()
+
+    self.nSamples = int(num)
     self.nSamples = min(self.nSamples, num_samples)
 
     if self.is_train:
@@ -65,12 +71,22 @@ class Dataset(data.Dataset):
   def __getitem__(self, index):
     assert index <= self.nSamples, 'index range error'
 
+    index += 1
+
     try:
-      img = Image.open(self.img_list[index])
+      img_root_i = osp.join(self.data_root,str(index)+'.txt')
+      with open(img_root_i,'r') as f:
+        lines = f.readlines()
+      js_p = lines[0].strip()
+      img_p = lines[1].strip()
+      img = Image.open(img_p)
+      img = img.convert("RGB")
     except IOError:
       print('Corrupted image for %d' % index)
-      return self[index]
+      return self[index+1]
     
+    ori_w, ori_h = img.size
+
     img = img.resize((self.width,self.height))
     if self.is_train:
       if random.uniform(0,1) < 0.2:
@@ -79,19 +95,18 @@ class Dataset(data.Dataset):
         img = np.asarray(img, dtype=np.uint8)
         img = self.augment(image = img)
         img = Image.fromarray(img)
-
-    # Sample: 1116_hly_3_0_2.5.jpg // 1116_hly_23_0_5.jpg
-    raw_label = self.img_list[index].split('_')[-1] # 2.5.jpg // 5.jpg
-    raw_label = raw_label.strip('.jpg') # 2.5 // 5
-
-    label = fileutils.weight2id(raw_label)
-
+    try:
+      pt = fileutils.red_json(js_p)
+      pt[0] = pt[0]/ori_w*self.width
+      pt[1] = pt[1]/ori_h*self.height
+    except IndexError:
+      return self[index+1]
     # img.save('seeee_'+str(index)+'_'+str(label)+'_'+ raw_label +'.jpg')
 
     if self.transform is not None:
       img = self.transform(img)
 
-    return img, label
+    return img, pt[0], pt[1]
 
 
 class ResizeNormalize(object):
@@ -141,8 +156,9 @@ class AlignCollate(object):
     self.min_ratio = min_ratio
 
   def __call__(self, batch):
-    images, labels = zip(*batch)
-    b_labels = torch.LongTensor(labels)
+    images, labels_x, labels_y  = zip(*batch)
+    b_labels_x = torch.LongTensor(labels_x)
+    b_labels_y = torch.LongTensor(labels_y)
 
     imgH = self.imgH
     imgW = self.imgW
@@ -151,7 +167,7 @@ class AlignCollate(object):
     images = [transform(image) for image in images]
     b_images = torch.stack(images)
 
-    return b_images, b_labels
+    return b_images, b_labels_x, b_labels_y
 
 
 if __name__ == "__main__":

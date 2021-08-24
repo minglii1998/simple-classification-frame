@@ -15,7 +15,7 @@ import sys
 from . import evaluation_metrics
 from .evaluation_metrics import Accuracy
 from .utils.meters import AverageMeter
-from .utils.visulization import visulize
+# from .utils.visulization import visulize
 
 metrics_factory = evaluation_metrics.factory()
 
@@ -41,10 +41,11 @@ class BaseEvaluator(object):
     # forward the network
     end = time.time()
     for i, datas in enumerate(data_loader):
-      images, labels = datas
+      images, labels_x, labels_y = datas
+      labels = torch.cat((labels_x.unsqueeze(1),labels_y.unsqueeze(1)),1)
 
       images = images.to(self.device)
-      labels = labels.to(self.device)
+      labels = labels.to(self.device).float()
 
       data_time.update(time.time() - end)
 
@@ -56,15 +57,17 @@ class BaseEvaluator(object):
       end = time.time()
 
       if i == 0:
-        images_all = images
-        preds_all = preds
-        targets_all = labels
+      #   images_all = images
+      #   preds_all = preds
+      #   targets_all = labels
         loss_all = total_loss_batch
+        sample_all = images.shape[0]
       else:
-        images_all = torch.cat((images_all,images),0)
-        preds_all = torch.cat((preds_all,preds),0)
-        targets_all = torch.cat((targets_all,labels),0)
+      #   images_all = torch.cat((images_all,images),0)
+      #   preds_all = torch.cat((preds_all,preds),0)
+      #   targets_all = torch.cat((targets_all,labels),0)
         loss_all = loss_all + total_loss_batch
+        sample_all += images.shape[0]
 
       if (i + 1) % print_freq == 0:
         print('[{}]\t'
@@ -90,22 +93,27 @@ class BaseEvaluator(object):
           f.write('\n')
 
 
-    # Images from different batches
-    num_samples = images_all.shape[0]
-    Acc = (targets_all == preds_all).sum()/num_samples
-    Loss_mean = loss_all/num_samples
+    # # Images from different batches
+    # num_samples = images_all.shape[0]
+    # Acc = (targets_all == preds_all).sum()/num_samples
+    Loss_mean = loss_all/sample_all
 
-    print('{0}: {1:.3f} \t Mean Loss: {2:.3f} '.format(self.metric, Acc.data, Loss_mean.data))
+    # print('{0}: {1:.3f} \t Mean Loss: {2:.3f} '.format(self.metric, Acc.data, Loss_mean.data))
+    # with open(self.logs_txt_dir,'a') as f:
+    #   f.write('{0}: {1:.3f} \t Mean Loss: {2:.3f} '.format(self.metric, Acc.data, Loss_mean.data))
+    #   f.write('\n \n')
+
+    print('Mean Loss: {0:.3f} '.format(Loss_mean.data))
     with open(self.logs_txt_dir,'a') as f:
-      f.write('{0}: {1:.3f} \t Mean Loss: {2:.3f} '.format(self.metric, Acc.data, Loss_mean.data))
+      f.write('Mean Loss: {0:.3f} '.format( Loss_mean.data))
       f.write('\n \n')
 
 
     # ====== Visualization ======#
-    if vis_dir is not None:
-      visulize(images_all,targets_all,preds_all,vis_dir)
+    # if vis_dir is not None:
+    #   visulize(images_all,targets_all,preds_all,vis_dir)
 
-    return Acc
+    return Loss_mean
 
 
   def _parse_data(self, inputs):

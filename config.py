@@ -14,15 +14,15 @@ import argparse
 parser = argparse.ArgumentParser(description="Softmax loss classification")
 # data
 parser.add_argument('--synthetic_train_data_dir', nargs='+', type=str, metavar='PATH',
-                    default=['/share/zhui/reg_dataset/NIPS2014'])
+                    default=['/home/liming/chenhan/project/pipe/result/DL-based-findcenter/data_txt_50'])
 parser.add_argument('--test_data_dir', type=str, metavar='PATH',
-                    default='/share/zhui/reg_dataset/IIIT5K_3000')
+                    default='/home/liming/chenhan/project/pipe/result/DL-based-findcenter/data_txt_50')
 
-parser.add_argument('-b', '--batch_size', type=int, default=128)
-parser.add_argument('-j', '--workers', type=int, default=8)
-parser.add_argument('--height', type=int, default=128,
+parser.add_argument('-b', '--batch_size', type=int, default=4)
+parser.add_argument('-j', '--workers', type=int, default=0)
+parser.add_argument('--height', type=int, default=1080,
                     help="input height, default: 128 * 128")
-parser.add_argument('--width', type=int, default=128,
+parser.add_argument('--width', type=int, default=1920,
                     help="input width, default: 128 * 128")
 parser.add_argument('--num_train', type=int, default=math.inf)
 parser.add_argument('--num_test', type=int, default=math.inf)
@@ -36,7 +36,7 @@ parser.add_argument('--model_arch', type=str, default='resnet34',
                     help='the model to use.')
 parser.add_argument('--dropout', type=float, default=0.5)
 parser.add_argument('--n_group', type=int, default=1)
-parser.add_argument('--num_class', type=int, default=9)
+parser.add_argument('--num_class', type=int, default=2)
 
 # optimizer
 parser.add_argument('--lr', type=float, default=1,
@@ -71,7 +71,7 @@ working_dir = osp.dirname(osp.dirname(osp.abspath(__file__)))
 parser.add_argument('--logs_dir', type=str, metavar='PATH',
                     default=osp.join(working_dir, 'logs'))
 parser.add_argument('--real_logs_dir', type=str, metavar='PATH',
-                    default='/media/mkyang/research/recognition/selfattention_rec')
+                    default='/home/liming/chenhan/project/pipe/result/DL-based-findcenter/simple-classification-frame')
 parser.add_argument('--debug', action='store_true',
                     help="if debugging, some steps will be passed.")
 
