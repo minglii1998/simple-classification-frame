@@ -13,16 +13,16 @@ import argparse
 
 parser = argparse.ArgumentParser(description="Softmax loss classification")
 # data
-parser.add_argument('--synthetic_train_data_dir', nargs='+', type=str, metavar='PATH',
-                    default=['/home/liming/chenhan/project/pipe/result/DL-based-findcenter/data_txt_50'])
+parser.add_argument('--synthetic_train_data_dir', type=str, metavar='PATH',
+                    default='/home/liming/chenhan/project/pipe/result/DL-based-findcenter/data_txt_train')
 parser.add_argument('--test_data_dir', type=str, metavar='PATH',
-                    default='/home/liming/chenhan/project/pipe/result/DL-based-findcenter/data_txt_50')
+                    default='/home/liming/chenhan/project/pipe/result/DL-based-findcenter/data_txt_test')
 
 parser.add_argument('-b', '--batch_size', type=int, default=4)
 parser.add_argument('-j', '--workers', type=int, default=0)
-parser.add_argument('--height', type=int, default=1080,
+parser.add_argument('--height', type=int, default=720,
                     help="input height, default: 128 * 128")
-parser.add_argument('--width', type=int, default=1920,
+parser.add_argument('--width', type=int, default=1080,
                     help="input width, default: 128 * 128")
 parser.add_argument('--num_train', type=int, default=math.inf)
 parser.add_argument('--num_test', type=int, default=math.inf)

@@ -37,7 +37,7 @@ def get_data(data_dir, num_samples, height, width, batch_size, workers, is_train
       dataset_list.append(Dataset(data_dir_, num_samples,height,width,is_train=is_train))
     dataset = ConcatDataset(dataset_list)
   else:
-    dataset = Dataset(data_dir, num_samples,height,width)
+    dataset = Dataset(data_dir, num_samples,height,width,is_train=is_train)
   print('total image: ', len(dataset))
 
   if is_train:
@@ -48,7 +48,7 @@ def get_data(data_dir, num_samples, height, width, batch_size, workers, is_train
     data_loader = DataLoader(dataset, batch_size=batch_size, num_workers=workers,
       shuffle=False, pin_memory=True, drop_last=False,
       collate_fn=AlignCollate(imgH=height, imgW=width))
-
+  print('data_loader len',len(data_loader))
   return dataset, data_loader
 
 def main(args):
@@ -175,6 +175,7 @@ def main(args):
   # Start training
   evaluator.evaluate(test_loader, step=0, dataset=test_dataset)
   for epoch in range(start_epoch, args.epochs):
+    print('here')
     scheduler.step(epoch)
     current_lr = optimizer.param_groups[0]['lr']
     trainer.train(epoch, train_loader, optimizer, current_lr,

@@ -7,7 +7,7 @@ import os.path as osp
 import json
 
 import torch
-
+import random
 
 def get_filelist(path):
     name_dict = {}
@@ -64,8 +64,46 @@ def write_to_txt(txt_path):
         f.write(str(count))
 
 
+def write_to_txt_seperate(txt_path_train,txt_path_test):
+
+    name_dict = get_filelist('/home/liming/chenhan/data/center')
+
+    count_test = 0
+    count_train = 0
+    
+    for k in name_dict.keys():
+
+        js_p = name_dict[k]['js']
+        img_p = name_dict[k]['img']
+
+        if random.uniform(0,1) < 0.1:
+            # test
+            count_test += 1
+            txt_path_i = osp.join(txt_path_test,str(count_test)+'.txt')
+        else:
+            # train
+            count_train += 1
+            txt_path_i = osp.join(txt_path_train,str(count_train)+'.txt')
+
+        with open(txt_path_i,'a') as f:
+            f.write(js_p+'\n')
+            f.write(img_p+'\n')
+
+
+    txt_path_num = osp.join(txt_path_test,'num.txt')
+    with open(txt_path_num,'a') as f:
+        f.write(str(count_test))
+
+    txt_path_num = osp.join(txt_path_train,'num.txt')
+    with open(txt_path_num,'a') as f:
+        f.write(str(count_train))
+
+
 if __name__ == '__main__':
     write_to_txt('/home/liming/chenhan/project/pipe/result/DL-based-findcenter/data_txt_50')
+
+    write_to_txt_seperate('/home/liming/chenhan/project/pipe/result/DL-based-findcenter/data_txt_train',
+                    '/home/liming/chenhan/project/pipe/result/DL-based-findcenter/data_txt_test')
 
     # name_dict = get_filelist('/home/liming/chenhan/data/center')
     # for k in name_dict.keys():

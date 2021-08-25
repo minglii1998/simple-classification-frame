@@ -113,7 +113,7 @@ class BaseEvaluator(object):
     # if vis_dir is not None:
     #   visulize(images_all,targets_all,preds_all,vis_dir)
 
-    return Loss_mean
+    return 1- Loss_mean/10000
 
 
   def _parse_data(self, inputs):

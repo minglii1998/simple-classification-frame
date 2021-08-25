@@ -46,12 +46,14 @@ class BaseTrainer(object):
     losses = AverageMeter()
 
     end = time.time()
+    # print('data_loader',len(data_loader))
 
     for i, datas in enumerate(data_loader):
       self.model.train()
       self.iters += 1
       images, labels_x, labels_y = datas
       labels = torch.cat((labels_x.unsqueeze(1),labels_y.unsqueeze(1)),1)
+      # print('labels',labels)
 
       images = images.to(self.device)
       labels = labels.to(self.device).float()
